@@ -8,6 +8,8 @@ import torch
 from torch import nn 
 from torchvision import transforms
 import matplotlib.pyplot as plt
+import torch.nn.functional as F
+
 
 
 app = Flask(__name__)
@@ -62,12 +64,16 @@ def upload_image():
         with torch.no_grad():
             logits = model(preprocessed_image)
 
+        probabilities = F.softmax(logits, dim=1)
+
+
         # Process logits as needed
         predicted_class = torch.argmax(logits).item()
+        predicted_probability = probabilities[0, predicted_class].item() * 100 
 
         # Return prediction results or any relevant information
 
-        return {"prediction": predicted_class, "success": True}
+        return {"prediction": predicted_class, "probability":predicted_probability, "success": True}
     except Exception as e:
         return str(e)
 
